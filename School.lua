@@ -4,11 +4,7 @@ local prevConnections = {}
 
 local localPlayer = services.Players.LocalPlayer
 
--- ============================================
--- NEW: Human reaction time helper (was instant before)
--- Old: No delays, instant responses
--- New: 0.3-0.8 second natural reaction time
--- ============================================
+-- Human reaction time helper
 local function humanWait(minSec, maxSec)
     local baseWait = minSec or 0.3
     local maxWait = maxSec or (minSec or 0.3) + 0.5
@@ -16,16 +12,10 @@ local function humanWait(minSec, maxSec)
     task.wait(baseWait + variance + math.random(0, (maxWait - baseWait) * 10) / 10)
 end
 
--- ============================================
--- NEW: Random delay between actions (was none before)
--- ============================================
 local function actionDelay()
     task.wait(math.random(0.8, 2.5) + (math.random() * 0.5))
 end
 
--- ============================================
--- NEW: Random locker code generator (was hardcoded "0000" before)
--- ============================================
 local function generateLockerCode()
     local code = ""
     for i = 1, 4 do
@@ -37,11 +27,6 @@ local function generateLockerCode()
     return code
 end
 
--- ============================================
--- CHANGED: Added human delays between remote fires
--- Old: Instant firing, no delays
--- New: 0.5-1.5 second delay between each fire
--- ============================================
 function fireBack(remote, times, ...)
     local args = {...}
     return remote.OnClientEvent:Connect(function()
@@ -53,14 +38,6 @@ function fireBack(remote, times, ...)
 end
 
 local classFuncs = {
-    -- ============================================
-    -- SWIMMING CLASS - COMPLETELY REWRITTEN
-    -- OLD: hrp.CFrame + Vector3.new(0,10,0) + Anchored = true
-    -- OLD: Perfect stillness for 55 seconds (detectable)
-    -- NEW: Jump simulation with 85-95% success rate
-    -- NEW: Random obstacle timing (1.5-4 seconds)
-    -- NEW: Occasional failures with recovery time
-    -- ============================================
     swimming = function()
         return {
             classRemotes.Timer.OnClientEvent:Connect(function()
@@ -97,11 +74,6 @@ local classFuncs = {
         }
     end,
     
-    -- ============================================
-    -- ART CLASS - ADDED HUMAN DELAYS
-    -- OLD: No delays, instant painting
-    -- NEW: 1-3 second study time, 0.2-0.6 sec between colors
-    -- ============================================
     art = function() 
         local function getCanvasData()
             local canvas = {}
@@ -135,12 +107,6 @@ local classFuncs = {
         return {fireBack(classRemotes.Chemistry, 1, "SequenceDone")}
     end,
 
-    -- ============================================
-    -- PE CLASS - ADDED REALISTIC TIMING
-    -- OLD: Instant teleport, completed in 1 second
-    -- NEW: 50-60 second delay before teleport (looks human)
-    -- NOTE: Still uses teleport but hides it with wait
-    -- ============================================
     pe = function()
         return {
             classRemotes.Timer.OnClientEvent:Connect(function()
@@ -165,11 +131,6 @@ local classFuncs = {
         }
     end,
     
-    -- ============================================
-    -- ENGLISH CLASS - ADDED READING TIME
-    -- OLD: 0.1 second response (inhuman)
-    -- NEW: 1.5-4 second reading time + 0.3-0.8 sec hesitation
-    -- ============================================
     english = function()
         local correctWords = {"Argument", "Enough", "Until", "Amateur", "Library", "Embarrassing", "Tongue", "Dessert", "February", "Accommodate", "a lot", "Beautiful"}
 
@@ -190,11 +151,6 @@ local classFuncs = {
         }
     end,
 
-    -- ============================================
-    -- BAKING CLASS - ADDED HUMAN DELAYS
-    -- OLD: Instant actions, no delays
-    -- NEW: 0.8-1.5 sec between selections, random action delays
-    -- ============================================
     baking = function()
         local flavorFrame = localPlayer.PlayerGui.Baking.FlavorSelect
         local linerFrame = localPlayer.PlayerGui.Baking.LinerSelect
@@ -278,11 +234,6 @@ local classFuncs = {
     end
 }
 
--- ============================================
--- CHANGED: Added human reaction before class starts
--- OLD: Instant response to class starting
--- NEW: 0.3-0.8 second delay
--- ============================================
 classRemotes.Starting.OnClientEvent:Connect(function(class)
     humanWait(0.3, 0.8)
     local class = string.lower(string.gsub(class, " class", ""))
@@ -300,11 +251,6 @@ classRemotes.Starting.OnClientEvent:Connect(function(class)
     end
 end)
 
--- ============================================
--- HOMEWORK - ADDED HUMAN PACING
--- OLD: 0.5 seconds between homework completions
--- NEW: 4-8 seconds per assignment (normal human speed)
--- ============================================
 localPlayer.ChildAdded:Connect(function(child)
     if child.Name == "Homework" then
         humanWait(1, 3)
@@ -327,11 +273,6 @@ localPlayer.ChildAdded:Connect(function(child)
     end
 end)
 
--- ============================================
--- TIME-BASED TELEPORT - ADDED RANDOM DELAYS
--- OLD: Perfect 5-second intervals
--- NEW: Random delays (4-8 seconds), random retry counts (3-5)
--- ============================================
 local time = localPlayer.PlayerGui.SchoolHUD.MainFrame.Time.Time
 time:GetPropertyChangedSignal("Value"):Connect(function()
     if time.Value >= 15 and time.Value <= 23 then
@@ -358,11 +299,6 @@ local function getLocker()
     return closetLocker
 end
 
--- ============================================
--- LOCKER - ADDED RANDOM CODE + HUMAN DELAYS
--- OLD: Hardcoded "0000" code, no delays
--- NEW: Random 4-digit code, human delays between actions
--- ============================================
 local function getBooks()
     humanWait(2, 5)
     repeat task.wait() until #localPlayer.Locker:GetChildren() == 5
